@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gradify — custom grad caps</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet CSS  -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- jQuery  -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+  <!-- Vue.js  -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+  <!-- D3.js  -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!-- Leaflet JS  -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <!--
+          NAVIGATION
+    -->
+    <nav id="navbar">
+        <div class="nav-inner">
+            <a href="#hero" class="nav-logo">
+                <img src="assets/logo.png" alt="Gradify Logo" class="logo-img" />
+            </a>
+            <ul class="nav-links">
+                <li><a href="#gallery" class="nav-link">Gallery</a></li>
+                <li><a href="#team" class="nav-link">Team</a></li>
+                <li><a href="#stats" class="nav-link">Stats</a></li>
+                <li><a href="#location" class="nav-link">Find Us</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <button class="nav-chat-btn" id="navChatBtn">💬 Live Chat</button>
+        </div>
+    </nav>
+
+    <!--
+         HERO SECTION
+    -->
+    <section id="hero">
+        <div class="hero-bg-pattern"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                your pinterest board but<br />
+                <em>make it graduation.</em>
+            </h1>
+            <p class="hero-subtitle">
+                Because graduating deserves more than a basic cap— hand-crafted with love for your biggest milestone yet.
+            </p>
+            <div class="hero-ctas">
+                <a href="#gallery" class="btn btn-primary">see our work</a>
+                <button class="btn btn-secondary" id="heroChatBtn">chat with us</button>
+            </div>
+            <div class="hero-badges">
+                <span class="badge">🌸 Floral Designs</span>
+                <span class="badge">🎨 Animals & Characters</span>
+                <span class="badge">✨ Glitter & Gems</span>
+                <span class="badge">💬 Quotes & Anything Custom </span>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-cap-ring"></div>
+            <img src="assets/logo.png" alt="Gradify Cap" class="hero-logo-big" />
+        </div>
+        <div class="hero-scroll-hint">scroll down ↓</div>
+    </section>
+
+    <!
+    GALLERY SECTION (Vue.js)
+    <section id="gallery">
+        <div class="section-header">
+            <span class="section-tag">portfolio</span>
+            <h2 class="section-title">our work</h2>
+            <p class="section-sub">your cap. your story.</p>
+        </div>
+
+        <div id="gallery-app">
+            <div class="gallery-filters">
+                <button v-for="cat in categories"
+                        :key="cat"
+                        :class="['filter-btn', { active: activeFilter === cat }]"
+                        @click="activeFilter = cat">
+                    {{ cat }}
+                </button>
+            </div>
+
+            <div class="gallery-grid">
+                <div v-for="item in filteredItems"
+                     :key="item.id"
+                     class="gallery-card">
+
+                    <div class="gallery-card-img">
+                        <img :src="item.image" :alt="item.title" />
+                    </div>
+
+                    <div class="gallery-card-info">
+                        <h3>{{ item.title }}</h3>
+                        <p>{{ item.description }}</p>
+                        <span class="gallery-card-tag">{{ item.category }}</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <p v-if="filteredItems.length === 0" class="gallery-empty">
+                Nothing in this category yet — stay tuned 🎓
+            </p>
+        </div>
+    </section>
+
+
+    <section id="team">
+        <div class="section-header">
+            <span class="section-tag">the crew</span>
+            <h2 class="section-title">just 3 creative girls</h2>
+            <p class="section-sub">the hands & brains behind every masterpiece</p>
+        </div>
+
+        <div class="team-grid">
+            <div v-for="member in team" :key="member.id" class="team-card">
+
+                <div class="team-photo">
+                    <img :src="member.image" :alt="member.name" />
+                </div>
+
+
+                <div class="team-info">
+                    <h3 class="team-name">{{ member.name }}</h3>
+                    <p class="team-role">{{ member.role }}</p>
+                    <p class="team-bio">{{ member.bio }}</p>
+
+                    <div class="team-specialties">
+                        <span v-for="s in member.specialties" :key="s" class="specialty-tag">
+                            {{ s }}
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!--
+         STATS SECTION (D3.js)
+    -->
+    <section id="stats">
+        <div class="section-header light">
+            <span class="section-tag">by the numbers</span>
+            <h2 class="section-title">gradify in numbers</h2>
+            <p class="section-sub">our journey so far</p>
+        </div>
+
+        <div class="stats-numbers">
+            <div class="stat-box">
+                <span class="stat-number" data-target="11">0</span>
+                <span class="stat-label">caps customized</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" data-target="11">0</span>
+                <span class="stat-label">happy clients</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" data-target="3">0</span>
+                <span class="stat-label">expert artists</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" data-target="67">0</span>
+                <span class="stat-label">design styles</span>
+            </div>
+        </div>
+
+        <!-- D3 Bar Chart -->
+        <div class="d3-container">
+            <h3 class="d3-title">orders by design style</h3>
+            <div id="d3-chart"></div>
+        </div>
+    </section>
+
+    <!--
+         MAP / LOCATION SECTION (GPS/Maps - Lab 6)
+     -->
+    <section id="location">
+        <div class="section-header">
+            <span class="section-tag">find us</span>
+            <h2 class="section-title">our hq</h2>
+            <p class="section-sub">based in Cluj, shipping nationwide!</p>
+        </div>
+
+        <div class="location-wrapper">
+            <div class="location-info">
+                <div class="location-detail">
+                    <span class="loc-icon">📍</span>
+                    <div>
+                        <strong>Address</strong>
+                        <p>Strada Episcop Ioan Bob 10, Cluj-Napoca, Romania</p>
+                    </div>
+                </div>
+                <div class="location-detail">
+                    <span class="loc-icon">🕐</span>
+                    <div>
+                        <strong>Hours</strong>
+                        <p>Mon–Fri: 9:00 – 21:00<br />Sat: 10:00 – 18:00</p>
+                    </div>
+                </div>
+                <div class="location-detail">
+                    <span class="loc-icon">📦</span>
+                    <div>
+                        <strong>Shipping</strong>
+                        <p>we ship nationwide via sameday</p>
+                    </div>
+                </div>
+                <div class="location-detail">
+                    <span class="loc-icon">📱</span>
+                    <div>
+                        <strong>instagram</strong>
+                        <a href="https://www.instagram.com/gradifycluj" target="_blank" class="insta-link">@gradifycluj</a>
+                    </div>
+                </div>
+            </div>
+            <div id="map"></div>
+        </div>
+    </section>
+
+    <!--
+         CONTACT -->
+    <section id="contact">
+        <div class="contact-inner">
+            <span class="section-tag">get started</span>
+            <h2 class="contact-title">ready to gradify your cap?</h2>
+            <p class="contact-sub">fill out the form below and we'll get back to you within an hour — or just hop on the live chat or dm on insta!</p>
+
+            <form id="contact-form" class="contact-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fname">your name</label>
+                        <input type="text" id="fname" placeholder="Andreea Popa" />
+                        <span class="field-error" id="fname-err">please enter your name</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="femail">email</label>
+                        <input type="email" id="femail" placeholder="andreeapopa12@email.com" />
+                        <span class="field-error" id="femail-err">please enter a valid email</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="fstyle">Design Style</label>
+                    <select id="fstyle">
+                        <option value="">— Pick a style —</option>
+                        <option>🌸 Florals</option>
+                        <option>🖼️ Characters</option>
+                        <option>✨ Glitter & Gems</option>
+                        <option>💬 Quote / Typography</option>
+                        <option>🌈 Animals / Colorful</option>
+                        <option>🎨 Something Custom</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="fmessage">Tell Us Your Vision</label>
+                    <textarea id="fmessage" rows="4" placeholder="describe your dream cap design, colors, references..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Send My Request ✉️</button>
+                <div id="form-success" class="form-success" style="display:none;">
+                    🎉 we got you! see you soon!!
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!--
+          FOOTER
+    -->
+    <footer id="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <img src="assets/logo.png" alt="Gradify" class="footer-logo" />
+                <p>your degree. your story. your cap.</p>
+            </div>
+            <div class="footer-links">
+                <strong>Navigate</strong>
+                <a href="#gallery">Gallery</a>
+                <a href="#team">Artists</a>
+                <a href="#location">Find Us</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <div class="footer-links">
+                <strong>Socials</strong>
+                <a href="https://www.instagram.com/gradifycluj" target="_blank">Instagram</a>
+                <a href="https://www.tiktok.com/@gradifycluj" target="_blank">TikTok</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 gradify cluj — all rights reserved.</p>
+            <p>made with ❤️ for every graduate</p>
+        </div>
+    </footer>
+
+    <!--
+          LIVE CHAT WIDGET (WebSocket - Lab 2)
+    -->
+    <div id="chat-bubble" class="chat-bubble" title="Open Live Chat">
+        <span class="chat-bubble-icon">💬</span>
+        <span class="chat-bubble-badge" id="chatBadge">1</span>
+    </div>
+
+    <div id="chat-panel" class="chat-panel">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-avatar">🎓</div>
+                <div>
+                    <strong>Gradify Team</strong>
+                    <span class="chat-status" id="chatStatus">● Connecting...</span>
+                </div>
+            </div>
+            <button class="chat-close" id="chatClose">✕</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- messages injected here -->
+        </div>
+        <div class="chat-input-area">
+            <input type="text"
+                   id="chatInput"
+                   class="chat-input"
+                   placeholder="Type a message..."
+                   maxlength="300" />
+            <button class="chat-send" id="chatSend">↑</button>
+        </div>
+    </div>
+
+    <!-- App Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
