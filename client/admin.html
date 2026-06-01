@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gradify Admin</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { background: #f8f8f9; }
+    .admin-shell { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+    .admin-card { background: #fff; padding: 24px; border-radius: 18px; box-shadow: 0 16px 40px rgba(17, 21, 34, 0.12); }
+    .admin-card h1, .admin-card h2 { margin-bottom: 16px; }
+    .admin-form label { display: block; margin-bottom: 12px; font-weight: 600; }
+    .admin-form input { width: 100%; max-width: 320px; display: block; margin-top: 8px; padding: 12px 14px; border: 1px solid #dce0eb; border-radius: 14px; }
+    .admin-form button { margin-top: 16px; }
+    .hidden { display: none; }
+    .table-wrap { overflow-x: auto; margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #e8ebf5; text-align: left; }
+    th { background: #f4f6fb; font-weight: 700; }
+    .admin-logout { margin-top: 20px; }
+    .field-error { color: #e04848; margin-top: 8px; display: block; }
+  </style>
+</head>
+<body>
+  <main class="admin-shell">
+    <div class="admin-card">
+      <h1>Admin Dashboard</h1>
+      <div id="login-panel">
+        <h2>Admin Login</h2>
+        <form id="admin-login-form" class="admin-form">
+          <label>
+            Username
+            <input type="text" id="admin-username" value="admin" autocomplete="username" />
+          </label>
+          <label>
+            Password
+            <input type="password" id="admin-password" value="admin" autocomplete="current-password" />
+          </label>
+          <button type="submit" class="btn btn-primary">Login</button>
+          <span id="login-error" class="field-error"></span>
+        </form>
+      </div>
+
+      <div id="admin-panel" class="hidden">
+        <button id="logout-btn" class="btn btn-secondary admin-logout">Logout</button>
+        <h2>Users</h2>
+        <div id="users-table" class="table-wrap"></div>
+        <h2>Orders</h2>
+        <div id="orders-table" class="table-wrap"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const loginPanel = document.getElementById('login-panel');
+    const adminPanel = document.getElementById('admin-panel');
+    const loginForm = document.getElementById('admin-login-form');
+    const loginError = document.getElementById('login-error');
+    const usersTable = document.getElementById('users-table');
+    const ordersTable = document.getElementById('orders-table');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    function renderTable(container, columns, rows) {
+      if (!rows.length) {
+        container.innerHTML = '<p>No records found.</p>';
+        return;
+      }
+      const thead = columns.map((col) => `<th>${col}</th>`).join('');
+      const body = rows.map((row) => {
+        const cells = columns.map((key) => `<td>${row[key] === null || row[key] === undefined ? '' : row[key]}</td>`).join('');
+        return `<tr>${cells}</tr>`;
+      }).join('');
+      container.innerHTML = `<table><thead><tr>${thead}</tr></thead><tbody>${body}</tbody></table>`;
+    }
+
+    function renderUsers(users) {
+      if (!users.length) {
+        usersTable.innerHTML = '<p>No users found.</p>';
+        return;
+      }
+      const body = users.map((user) => {
+        return `
+          <tr>
+            <td>${user.id}</td>
+            <td>${user.name}</td>
+            <td>${user.surname}</td>
+            <td>${user.email}</td>
+            <td><button class="btn btn-secondary" data-user-id="${user.id}">Delete</button></td>
+          </tr>`;
+      }).join('');
+      usersTable.innerHTML = `<table><thead><tr><th>ID</th><th>Name</th><th>Surname</th><th>Email</th><th>Action</th></tr></thead><tbody>${body}</tbody></table>`;
+      usersTable.querySelectorAll('button[data-user-id]').forEach((button) => {
+        button.addEventListener('click', () => deleteUser(button.dataset.userId));
+      });
+    }
+
+    function renderOrders(orders) {
+      if (!orders.length) {
+        ordersTable.innerHTML = '<p>No orders found.</p>';
+        return;
+      }
+      const body = orders.map((order) => {
+        return `
+          <tr>
+            <td>${order.order_id}</td>
+            <td>${order.user_id}</td>
+            <td>${order.name}</td>
+            <td>${order.surname}</td>
+            <td>${order.email}</td>
+            <td>${order.design_style}</td>
+            <td>${order.color_palette}</td>
+            <td>${order.details}</td>
+            <td>${order.created_at}</td>
+            <td><button class="btn btn-secondary" data-order-id="${order.order_id}">Delete</button></td>
+          </tr>`;
+      }).join('');
+      ordersTable.innerHTML = `<table><thead><tr><th>Order ID</th><th>User ID</th><th>Name</th><th>Surname</th><th>Email</th><th>Design Style</th><th>Color Palette</th><th>Details</th><th>Created</th><th>Action</th></tr></thead><tbody>${body}</tbody></table>`;
+      ordersTable.querySelectorAll('button[data-order-id]').forEach((button) => {
+        button.addEventListener('click', () => deleteOrder(button.dataset.orderId));
+      });
+    }
+
+    async function deleteUser(userId) {
+      if (!confirm('Delete this user and all related orders?')) return;
+      const res = await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        showError('Unable to delete user.');
+        return;
+      }
+      loadData();
+    }
+
+    async function deleteOrder(orderId) {
+      if (!confirm('Delete this order?')) return;
+      const res = await fetch(`/api/orders/${orderId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        showError('Unable to delete order.');
+        return;
+      }
+      loadData();
+    }
+
+    function showError(message) {
+      loginError.textContent = message;
+    }
+
+    function showAdminPanel() {
+      loginPanel.classList.add('hidden');
+      adminPanel.classList.remove('hidden');
+      loadData();
+    }
+
+    function setLoggedOut() {
+      loginPanel.classList.remove('hidden');
+      adminPanel.classList.add('hidden');
+    }
+
+    async function loadData() {
+      try {
+        const [usersRes, ordersRes] = await Promise.all([
+          fetch('/api/users'),
+          fetch('/api/orders'),
+        ]);
+
+        if (!usersRes.ok || !ordersRes.ok) {
+          setLoggedOut();
+          return;
+        }
+
+        const usersJson = await usersRes.json();
+        const ordersJson = await ordersRes.json();
+
+        renderUsers(usersJson.users);
+        renderOrders(ordersJson.orders);
+      } catch (error) {
+        showError('Unable to load admin data.');
+      }
+    }
+
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      showError('');
+
+      const username = document.getElementById('admin-username').value.trim();
+      const password = document.getElementById('admin-password').value.trim();
+
+      const response = await fetch('/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        showError('Invalid admin credentials.');
+        return;
+      }
+
+      showAdminPanel();
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+      await fetch('/admin/logout', { method: 'POST' });
+      setLoggedOut();
+    });
+
+    loadData();
+  </script>
+</body>
+</html>

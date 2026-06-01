@@ -83,6 +83,17 @@ $(document).ready(function () {
       $('#fname').css('border-color', '');
     }
 
+    // Surname validation
+    const surname = $('#fsurname').val().trim();
+    if (surname.length < 2) {
+      $('#fsurname-err').addClass('visible');
+      $('#fsurname').css('border-color', '#ffb3b3');
+      valid = false;
+    } else {
+      $('#fsurname-err').removeClass('visible');
+      $('#fsurname').css('border-color', '');
+    }
+
     // Email validation
     const email = $('#femail').val().trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -95,15 +106,50 @@ $(document).ready(function () {
       $('#femail').css('border-color', '');
     }
 
+    // Color palette validation
+    const colorPalette = $('#fcolor').val().trim();
+    if (colorPalette === '') {
+      $('#fcolor-err').addClass('visible');
+      $('#fcolor').css('border-color', '#ffb3b3');
+      valid = false;
+    } else {
+      $('#fcolor-err').removeClass('visible');
+      $('#fcolor').css('border-color', '');
+    }
+
     if (valid) {
-      // Simulate form submission
       const $btn = $(this).find('button[type="submit"]');
       $btn.text('Sending...').prop('disabled', true);
-      setTimeout(() => {
-        $('#form-success').fadeIn(400);
-        $btn.text('Send My Request ✉️').prop('disabled', false);
-        $('#contact-form input, #contact-form select, #contact-form textarea').val('');
-      }, 1000);
+
+      const formData = {
+        name,
+        surname,
+        email,
+        style: $('#fstyle').val().trim(),
+        color: colorPalette,
+        message: $('#fmessage').val().trim(),
+      };
+
+      fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            $('#form-success').fadeIn(400);
+            $('#contact-form input, #contact-form select, #contact-form textarea').val('');
+          } else {
+            alert(data.error || 'A apărut o eroare.');
+          }
+        })
+        .catch(() => {
+          alert('Nu s-a putut trimite formularul. Încercă din nou mai târziu.');
+        })
+        .finally(() => {
+          $btn.text('Send My Request ✉️').prop('disabled', false);
+        });
     }
   });
 
@@ -114,10 +160,22 @@ $(document).ready(function () {
       $(this).css('border-color', '');
     }
   });
+  $('#fsurname').on('input', function () {
+    if ($(this).val().trim().length >= 2) {
+      $('#fsurname-err').removeClass('visible');
+      $(this).css('border-color', '');
+    }
+  });
   $('#femail').on('input', function () {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (emailRegex.test($(this).val().trim())) {
       $('#femail-err').removeClass('visible');
+      $(this).css('border-color', '');
+    }
+  });
+  $('#fcolor').on('change', function () {
+    if ($(this).val().trim() !== '') {
+      $('#fcolor-err').removeClass('visible');
       $(this).css('border-color', '');
     }
   });

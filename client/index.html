@@ -247,8 +247,13 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="fname">your name</label>
-                        <input type="text" id="fname" placeholder="Andreea Popa" />
+                        <input type="text" id="fname" placeholder="Andreea" />
                         <span class="field-error" id="fname-err">please enter your name</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="fsurname">surname</label>
+                        <input type="text" id="fsurname" placeholder="Popa" />
+                        <span class="field-error" id="fsurname-err">please enter your surname</span>
                     </div>
                     <div class="form-group">
                         <label for="femail">email</label>
@@ -267,6 +272,19 @@
                         <option>🌈 Animals / Colorful</option>
                         <option>🎨 Something Custom</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label for="fcolor">Color Palette</label>
+                    <select id="fcolor">
+                        <option value="">— Pick a color palette —</option>
+                        <option>🎨 Soft Pastels</option>
+                        <option>🌙 Dark & Moody</option>
+                        <option>☀️ Bright & Bold</option>
+                        <option>🌿 Earth Tones</option>
+                        <option>✨ Metallics</option>
+                        <option>🖤 Monochrome</option>
+                    </select>
+                    <span class="field-error" id="fcolor-err">please pick a color palette</span>
                 </div>
                 <div class="form-group">
                     <label for="fmessage">Tell Us Your Vision</label>
@@ -290,6 +308,7 @@
                 <p>your degree. your story. your cap.</p>
             </div>
             <div class="footer-links">
+                <a href="/admin" class="footer-link">Admin panel</a>
                 <strong>Navigate</strong>
                 <a href="#gallery">Gallery</a>
                 <a href="#team">Artists</a>
